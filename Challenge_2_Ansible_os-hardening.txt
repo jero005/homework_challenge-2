@@ -1,0 +1,47 @@
+Jenkinsfile
+pipeline {
+  agent {
+    kubernetes {
+      label truffleslave
+      yaml """
+apiVersion: v1
+kind: Pod
+serviceAccount: 
+metadata:
+  labels:
+    worker: truffleslave
+spec:
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:4.7-1
+  - name: osbuilder
+    image: some/osbuilder:latest
+    command:
+    - cat
+    tty: true
+"""
+      }
+    }
+
+    stages {
+        stage('Build') {
+            container("osbuilder"){
+                steps {
+                    echo 'Building..'
+					sh 'ansible-playook tmp/jenkins/os-hardening.yaml -i tmp/inventory/ansible_hosts'  | tee results.json
+                }
+            }
+        }
+        stage('PostBuildTest') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Push') {
+            steps {
+                echo 'Pushing deployable artefacts....'
+            }
+        }
+    }
+}
+

@@ -1,0 +1,21 @@
+// DSL file to configure Jenkins server
+
+      multibranchPipelineJob('os-hardening') {
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+          }
+        }
+        branchSources {
+          branchSource {
+            source {
+              gitSCMSource {
+                remote('https://github.com/jero005/homework_challenge-2.git')
+                credentialsId('some-key2')
+                id('os-project')
+              }
+            }
+
+        }
+      }
+    }
